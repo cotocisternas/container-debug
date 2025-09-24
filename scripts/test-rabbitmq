@@ -1,0 +1,50 @@
+#!/bin/bash
+# RabbitMQ connection testing script
+
+usage() {
+    echo "Usage: test-rabbitmq <host> [port] [username] [password]"
+    echo "Default port: 5672"
+    echo "Example: test-rabbitmq localhost 5672 guest guest"
+    echo "Note: This performs basic connectivity tests. For full AMQP testing, install pika manually."
+}
+
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    usage
+    exit 0
+fi
+
+HOST=${1:-localhost}
+PORT=${2:-5672}
+USERNAME=${3:-guest}
+PASSWORD=${4:-guest}
+
+echo "Testing RabbitMQ connection to $HOST:$PORT..."
+
+# Test basic TCP connectivity
+echo "=== Testing TCP connectivity ==="
+if nc -zv "$HOST" "$PORT"; then
+    echo "✓ TCP connection to $HOST:$PORT successful"
+else
+    echo "✗ Failed to connect to $HOST:$PORT"
+    exit 1
+fi
+
+# Test HTTP Management interface (port 15672)
+MGMT_PORT=15672
+echo -e "\n=== Testing Management Interface ==="
+if nc -zv "$HOST" "$MGMT_PORT" 2>/dev/null; then
+    echo "✓ Management interface accessible at $HOST:$MGMT_PORT"
+    echo "Attempting to get basic info..."
+    if curl -s -u "$USERNAME:$PASSWORD" "http://$HOST:$MGMT_PORT/api/overview" >/dev/null 2>&1; then
+        echo "✓ Management API accessible with provided credentials"
+    else
+        echo "? Management API test failed (credentials may be incorrect or API disabled)"
+    fi
+else
+    echo "? Management interface not accessible at $HOST:$MGMT_PORT"
+fi
+
+echo -e "\n=== Connection Summary ==="
+echo "✓ Basic TCP connectivity test passed"
+echo "Note: For full AMQP protocol testing, install the pika Python library:"
+echo "  pip3 install pika"

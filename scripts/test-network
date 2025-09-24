@@ -1,0 +1,45 @@
+#!/bin/bash
+# Network connectivity testing script
+
+usage() {
+    echo "Usage: test-network <host> [port]"
+    echo "Examples:"
+    echo "  test-network google.com"
+    echo "  test-network localhost 8080"
+}
+
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    usage
+    exit 0
+fi
+
+if [ $# -lt 1 ]; then
+    usage
+    exit 1
+fi
+
+HOST=$1
+PORT=$2
+
+echo "Testing network connectivity to $HOST${PORT:+:$PORT}..."
+
+# DNS resolution test
+echo "=== DNS Resolution ==="
+nslookup "$HOST"
+
+# Ping test
+echo -e "\n=== Ping Test ==="
+ping -c 4 "$HOST"
+
+# Port connectivity test (if port specified)
+if [ -n "$PORT" ]; then
+    echo -e "\n=== Port Connectivity Test ==="
+    nc -zv "$HOST" "$PORT"
+    
+    echo -e "\n=== Telnet Test ==="
+    timeout 5 telnet "$HOST" "$PORT"
+fi
+
+# Traceroute
+echo -e "\n=== Traceroute ==="
+traceroute "$HOST"
