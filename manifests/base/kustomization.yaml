@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: container-debug-base
+  annotations:
+    config.kubernetes.io/local-config: "true"
+
+resources:
+- deployment.yaml
+
+configMapGenerator:
+- name: debug-scripts
+  files:
+  - debug-instructions.md
+  options:
+    labels:
+      app: container-debug
+      app.kubernetes.io/component: debugging-tool
+      app.kubernetes.io/part-of: container-debug
+
+labels:
+- includeSelectors: true
+  pairs:
+    app.kubernetes.io/name: container-debug
+    app.kubernetes.io/instance: default
+    app.kubernetes.io/version: latest
+    app.kubernetes.io/managed-by: kustomize
+
+commonAnnotations:
+  app.kubernetes.io/description: "Comprehensive debugging container for Kubernetes troubleshooting"
+  app.kubernetes.io/documentation: "https://github.com/cotocisternas/container-debug"
+
+images:
+- name: ghcr.io/cotocisternas/container-debug
+  newTag: latest
+
+namePrefix: ""
+nameSuffix: ""
+
+replicas:
+- name: container-debug
+  count: 1

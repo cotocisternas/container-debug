@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: container-debug
+spec:
+  template:
+    spec:
+      containers:
+      - name: debug
+        resources:
+          requests:
+            memory: "96Mi"
+            cpu: "75m"
+          limits:
+            memory: "384Mi"
+            cpu: "300m"
+        envFrom:
+        - configMapRef:
+            name: debug-env-config

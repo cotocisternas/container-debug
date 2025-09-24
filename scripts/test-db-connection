@@ -44,7 +44,9 @@ case $TYPE in
         mysql -h "$HOST" -P "$PORT" -u "$USERNAME" -p -e "SELECT 1;" "${DATABASE:-mysql}"
         ;;
     mongo)
-        if command -v mongo >/dev/null 2>&1; then
+        if command -v mongosh >/dev/null 2>&1; then
+            mongosh --host "$HOST:$PORT" --eval "db.runCommand('ping')"
+        elif command -v mongo >/dev/null 2>&1; then
             mongo --host "$HOST:$PORT" --eval "db.runCommand('ping')"
         else
             echo "MongoDB client not installed. Testing basic connectivity..."
