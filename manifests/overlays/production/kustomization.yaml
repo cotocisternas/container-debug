@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: container-debug-production
+  annotations:
+    config.kubernetes.io/local-config: "true"
+
+resources:
+- ../../base
+
+namePrefix: prod-
+namespace: production
+
+labels:
+- includeSelectors: true
+  pairs:
+    environment: production
+    app.kubernetes.io/instance: production
+
+commonAnnotations:
+  environment: production
+  contact: "sre-team@company.com"
+  monitoring.coreos.com/enabled: "true"
+  alerting.coreos.com/enabled: "true"
+
+images:
+- name: ghcr.io/cotocisternas/container-debug
+  newTag: latest
+
+replicas:
+- name: container-debug
+  count: 2  # Higher availability in production
+
+patches:
+- path: deployment-patch.yaml
+  target:
+    kind: Deployment
+    name: container-debug
+
+configMapGenerator:
+- name: debug-env-config
+  literals:
+  - DEBUG_LEVEL=warn
+  - ENVIRONMENT=production
+  - LOG_LEVEL=warn

@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: container-debug-development
+  annotations:
+    config.kubernetes.io/local-config: "true"
+
+resources:
+- ../../base
+
+namePrefix: dev-
+namespace: development
+
+labels:
+- includeSelectors: true
+  pairs:
+    environment: development
+    app.kubernetes.io/instance: dev
+
+commonAnnotations:
+  environment: development
+  contact: "devops-team@company.com"
+
+images:
+- name: ghcr.io/cotocisternas/container-debug
+  newTag: latest
+
+replicas:
+- name: container-debug
+  count: 1
+
+patches:
+- path: deployment-patch.yaml
+  target:
+    kind: Deployment
+    name: container-debug
+
+configMapGenerator:
+- name: debug-env-config
+  literals:
+  - DEBUG_LEVEL=debug
+  - ENVIRONMENT=development
+  - LOG_LEVEL=debug

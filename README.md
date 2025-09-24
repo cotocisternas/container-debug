@@ -15,6 +15,7 @@ This container includes tools for debugging connectivity issues with:
 ## Included Tools
 
 ### Network Utilities
+
 - `ping` - Test network connectivity
 - `dig`, `nslookup` - DNS troubleshooting
 - `netcat` (`nc`) - Port connectivity testing
@@ -24,19 +25,23 @@ This container includes tools for debugging connectivity issues with:
 - `tcpdump` - Network packet analysis
 
 ### Database Clients
+
 - `psql` - PostgreSQL client
 - `mysql` - MySQL/MariaDB client
 - `redis-cli` - Redis client
 - MongoDB client can be installed manually if needed
 
 ### Messaging Tools
+
 - Basic connectivity testing for RabbitMQ
 - Custom RabbitMQ testing scripts (for full AMQP testing, install pika manually)
 
 ### Kubernetes Tools
+
 - `kubectl` can be installed manually if needed
 
 ### System Utilities
+
 - `curl`, `wget` - HTTP clients
 - `jq` - JSON processor
 - `htop` - Process monitoring
@@ -44,6 +49,7 @@ This container includes tools for debugging connectivity issues with:
 - `openssl` - SSL/TLS utilities
 
 ### Custom Scripts
+
 - `test-db-connection` - Database connectivity testing
 - `test-network` - Network connectivity testing
 - `test-rabbitmq` - RabbitMQ connectivity testing
@@ -67,6 +73,30 @@ Once inside the container, run `debug-demo` to see available tools and examples.
 
 ### Use in Kubernetes
 
+#### Quick Deploy with Kustomize (Recommended)
+
+```bash
+# Deploy to development environment
+kubectl apply -k manifests/overlays/development
+
+# Deploy to staging environment
+kubectl apply -k manifests/overlays/staging
+
+# Deploy to production environment
+kubectl apply -k manifests/overlays/production
+
+# Connect to the debug pod
+kubectl exec -it -n development deployment/dev-container-debug -- /bin/bash
+```
+
+**Note:** When you connect to the debug pod, comprehensive debugging instructions will be automatically displayed to help you get started quickly.
+
+#### GitOps Deployment
+
+For FluxCD or ArgoCD integration, see the [manifests documentation](./manifests/README.md) and examples in the `manifests/gitops-examples/` directory.
+
+#### Manual Pod Creation
+
 Create a debug pod:
 
 ```yaml
@@ -76,11 +106,11 @@ metadata:
   name: debug-pod
 spec:
   containers:
-  - name: debug
-    image: ghcr.io/cotocisternas/container-debug:latest
-    command: ["/bin/bash"]
-    stdin: true
-    tty: true
+    - name: debug
+      image: ghcr.io/cotocisternas/container-debug:latest
+      command: ["/bin/bash"]
+      stdin: true
+      tty: true
   restartPolicy: Never
 ```
 
@@ -94,6 +124,7 @@ kubectl exec -it debug-pod -- /bin/bash
 ### Testing Database Connectivity
 
 #### PostgreSQL
+
 ```bash
 test-db-connection postgres db-host 5432 mydb myuser
 # or manually:
@@ -101,6 +132,7 @@ psql -h db-host -p 5432 -U myuser -d mydb
 ```
 
 #### MySQL
+
 ```bash
 test-db-connection mysql db-host 3306 mydb myuser
 # or manually:
@@ -108,6 +140,7 @@ mysql -h db-host -P 3306 -u myuser -p mydb
 ```
 
 #### MongoDB
+
 ```bash
 test-db-connection mongo db-host 27017
 # Note: MongoDB client not included by default, will test basic connectivity
@@ -118,6 +151,7 @@ test-db-connection mongo db-host 27017
 ```
 
 #### Redis
+
 ```bash
 test-db-connection redis db-host 6379
 # or manually:
@@ -127,12 +161,14 @@ redis-cli -h db-host -p 6379
 ### Testing Network Connectivity
 
 #### Basic connectivity
+
 ```bash
 test-network google.com
 test-network internal-service 8080
 ```
 
 #### Manual network testing
+
 ```bash
 # Test DNS resolution
 nslookup service-name
@@ -211,9 +247,41 @@ curl -u myuser:mypass http://rabbitmq-service:15672/api/overview
 nslookup my-service
 dig my-service
 
-# Test from within cluster
 nslookup my-service.my-namespace.svc.cluster.local
 ```
+
+## GitOps and Kubernetes Manifests
+
+This project includes comprehensive Kustomize manifests for GitOps deployment:
+
+- **Base configuration**: Core deployment, service, and configuration files
+- **Environment overlays**: Development, staging, and production configurations
+- **GitOps examples**: Ready-to-use FluxCD and ArgoCD configurations
+
+### Directory Structure
+
+```text
+manifests/
+├── base/                    # Base Kustomize configuration
+├── overlays/               # Environment-specific configurations
+│   ├── development/
+│   ├── staging/
+│   └── production/
+└── gitops-examples/        # FluxCD and ArgoCD examples
+    ├── fluxcd/
+    └── argocd/
+```
+
+### Quick Deployment
+
+```bash
+# Deploy to different environments
+kubectl apply -k manifests/overlays/development
+kubectl apply -k manifests/overlays/staging  
+kubectl apply -k manifests/overlays/production
+```
+
+For detailed GitOps setup instructions and customization options, see the [manifests documentation](./manifests/README.md).
 
 ## Building Locally
 

@@ -27,6 +27,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate Kustomize manifests
+        run: |
+          # Install kustomize
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
+          
+          echo "Validating Kustomize manifests..."
+          echo "Checking base configuration..."
+          kustomize build manifests/base > /dev/null
+          echo "Checking development overlay..."
+          kustomize build manifests/overlays/development > /dev/null
+          echo "Checking staging overlay..."
+          kustomize build manifests/overlays/staging > /dev/null
+          echo "Checking production overlay..."
+          kustomize build manifests/overlays/production > /dev/null
+          echo "All manifests are valid!"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -62,22 +79,38 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Test container (basic smoke test)
+      - name: Test container (comprehensive validation)
         if: github.event_name == 'pull_request'
         run: |
           docker build -t test-container .
+          echo "Running comprehensive container validation..."
           docker run --rm test-container /bin/bash -c "
-            echo 'Testing basic tools...' &&
+            echo 'Testing database clients...' &&
             psql --version &&
-            echo 'PostgreSQL client: OK' &&
             mysql --version &&
-            echo 'MySQL client: OK' &&
             redis-cli --version &&
-            echo 'Redis client: OK' &&
+            mongosh --version &&
+            echo 'Database clients: OK' &&
+            echo 'Testing network tools...' &&
+            ping -c 1 127.0.0.1 > /dev/null && echo 'ping: OK' &&
+            nc -h 2>&1 | head -1 &&
+            dig -v 2>&1 | head -1 &&
+            echo 'Network tools: OK' &&
+            echo 'Testing development tools...' &&
             python3 --version &&
-            echo 'Python: OK' &&
-            test-network --help &&
-            echo 'Custom scripts: OK' &&
-            debug-demo | head -10 &&
-            echo 'Demo script: OK'
+            git --version &&
+            nodejs --version &&
+            jq --version &&
+            echo 'Development tools: OK' &&
+            echo 'Testing system tools...' &&
+            htop --version 2>&1 | head -1 &&
+            curl --version | head -1 &&
+            wget --version | head -1 &&
+            echo 'System tools: OK' &&
+            echo 'Testing custom scripts...' &&
+            test-network --help > /dev/null && echo 'test-network: OK' &&
+            test-db-connection --help > /dev/null && echo 'test-db-connection: OK' &&
+            test-rabbitmq --help > /dev/null && echo 'test-rabbitmq: OK' &&
+            debug-demo | head -3 > /dev/null && echo 'debug-demo: OK' &&
+            echo 'All container tools validated successfully!'
           "
