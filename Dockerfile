@@ -79,7 +79,8 @@ RUN useradd -m -s /bin/bash debugger && \
 COPY scripts/ /usr/local/bin/
 RUN chmod +x /usr/local/bin/test-db-connection \
     /usr/local/bin/test-network \
-    /usr/local/bin/test-rabbitmq
+    /usr/local/bin/test-rabbitmq \
+    /usr/local/bin/debug-demo
 
 # Set working directory
 WORKDIR /home/debugger

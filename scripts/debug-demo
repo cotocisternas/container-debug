@@ -1,0 +1,47 @@
+#!/bin/bash
+# Demo script showing available debugging tools
+
+echo "=== Container Debug Tools Demo ==="
+echo
+
+echo "Available debugging tools:"
+echo "- Network: ping, nc, telnet, nslookup, dig, traceroute, nmap"
+echo "- Database clients: psql, mysql, redis-cli"
+echo "- HTTP tools: curl, wget"
+echo "- System: htop, vim, jq, python3, git, nodejs"
+echo "- Custom scripts: test-network, test-db-connection, test-rabbitmq"
+echo
+
+echo "Quick examples:"
+echo "1. Test network connectivity:"
+echo "   test-network google.com"
+echo "   test-network myservice 8080"
+echo
+
+echo "2. Test database connections:"
+echo "   test-db-connection redis redis-host 6379"
+echo "   test-db-connection postgres pg-host 5432 mydb myuser"
+echo
+
+echo "3. Test RabbitMQ:"
+echo "   test-rabbitmq rabbitmq-host 5672 guest guest"
+echo
+
+echo "4. Basic network troubleshooting:"
+echo "   nslookup myservice"
+echo "   nc -zv myservice 80"
+echo "   curl -I http://myservice/health"
+echo
+
+echo "5. Kubernetes debugging (after installing kubectl):"
+echo "   kubectl get services"
+echo "   kubectl describe service myservice"
+echo
+
+echo "For help with any script, use --help flag:"
+echo "   test-network --help"
+echo "   test-db-connection --help"
+echo "   test-rabbitmq --help"
+echo
+
+echo "Happy debugging!"
