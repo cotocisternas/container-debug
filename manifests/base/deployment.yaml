@@ -57,7 +57,6 @@ spec:
             - ALL
             add:
             - NET_RAW  # Required for ping
-            - NET_ADMIN  # Required for some network debugging tools
         env:
         - name: TZ
           value: "UTC"
