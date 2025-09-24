@@ -4,6 +4,38 @@ Container Debug is a comprehensive Kubernetes debugging container that provides 
 
 Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
 
+## Commit Message Guidelines
+
+**ALWAYS use semantic commit conventions** when creating commit messages. This ensures consistent and meaningful commit history.
+
+### Semantic Commit Format
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Commit Types
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation only changes
+- **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+- **refactor**: A code change that neither fixes a bug nor adds a feature
+- **perf**: A code change that improves performance
+- **test**: Adding missing tests or correcting existing tests
+- **chore**: Changes to the build process or auxiliary tools and libraries such as documentation generation
+
+### Examples
+```
+feat(scripts): add database connection retry logic
+fix(dockerfile): resolve MongoDB repository key issue
+docs(readme): update installation instructions
+chore(ci): update GitHub Actions workflow timeout
+test(scripts): add comprehensive validation for network tools
+```
+
 ## Working Effectively
 
 - **Bootstrap and build the container:**
