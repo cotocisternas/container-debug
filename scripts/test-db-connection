@@ -1,0 +1,62 @@
+#!/bin/bash
+# Database connection testing script
+
+usage() {
+    echo "Usage: test-db-connection <type> <host> <port> [database] [username]"
+    echo "Types: postgres, mysql, mongo, redis"
+    echo "Examples:"
+    echo "  test-db-connection postgres localhost 5432 mydb myuser"
+    echo "  test-db-connection redis localhost 6379"
+    echo "  test-db-connection mongo localhost 27017"
+}
+
+if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+    usage
+    exit 0
+fi
+
+if [ $# -lt 3 ]; then
+    usage
+    exit 1
+fi
+
+TYPE=$1
+HOST=$2
+PORT=$3
+DATABASE=$4
+USERNAME=$5
+
+echo "Testing connection to $TYPE at $HOST:$PORT..."
+
+case $TYPE in
+    postgres)
+        if [ -z "$USERNAME" ]; then
+            echo "Username required for PostgreSQL"
+            exit 1
+        fi
+        echo "\\q" | psql -h "$HOST" -p "$PORT" -U "$USERNAME" -d "${DATABASE:-postgres}" -c "SELECT 1;"
+        ;;
+    mysql)
+        if [ -z "$USERNAME" ]; then
+            echo "Username required for MySQL"
+            exit 1
+        fi
+        mysql -h "$HOST" -P "$PORT" -u "$USERNAME" -p -e "SELECT 1;" "${DATABASE:-mysql}"
+        ;;
+    mongo)
+        if command -v mongo >/dev/null 2>&1; then
+            mongo --host "$HOST:$PORT" --eval "db.runCommand('ping')"
+        else
+            echo "MongoDB client not installed. Testing basic connectivity..."
+            nc -zv "$HOST" "$PORT"
+        fi
+        ;;
+    redis)
+        redis-cli -h "$HOST" -p "$PORT" ping
+        ;;
+    *)
+        echo "Unsupported database type: $TYPE"
+        usage
+        exit 1
+        ;;
+esac
