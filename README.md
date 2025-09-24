@@ -47,6 +47,7 @@ This container includes tools for debugging connectivity issues with:
 - `test-db-connection` - Database connectivity testing
 - `test-network` - Network connectivity testing
 - `test-rabbitmq` - RabbitMQ connectivity testing
+- `debug-demo` - Shows available tools and examples
 
 ## Usage
 
@@ -61,6 +62,8 @@ docker pull ghcr.io/cotocisternas/container-debug:latest
 ```bash
 docker run -it ghcr.io/cotocisternas/container-debug:latest
 ```
+
+Once inside the container, run `debug-demo` to see available tools and examples.
 
 ### Use in Kubernetes
 

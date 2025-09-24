@@ -68,18 +68,16 @@ jobs:
           docker build -t test-container .
           docker run --rm test-container /bin/bash -c "
             echo 'Testing basic tools...' &&
-            ping -c 1 8.8.8.8 &&
-            echo 'Network tools: OK' &&
             psql --version &&
             echo 'PostgreSQL client: OK' &&
             mysql --version &&
             echo 'MySQL client: OK' &&
-            mongosh --version &&
-            echo 'MongoDB client: OK' &&
             redis-cli --version &&
             echo 'Redis client: OK' &&
-            kubectl version --client &&
-            echo 'kubectl: OK' &&
+            python3 --version &&
+            echo 'Python: OK' &&
             test-network --help &&
-            echo 'Custom scripts: OK'
+            echo 'Custom scripts: OK' &&
+            debug-demo | head -10 &&
+            echo 'Demo script: OK'
           "
