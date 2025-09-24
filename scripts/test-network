@@ -37,7 +37,7 @@ if [ -n "$PORT" ]; then
     nc -zv "$HOST" "$PORT"
     
     echo -e "\n=== Telnet Test ==="
-    timeout 5 telnet "$HOST" "$PORT"
+    timeout 5 telnet "$HOST" "$PORT" < /dev/null
 fi
 
 # Traceroute
