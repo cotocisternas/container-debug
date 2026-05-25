@@ -22,17 +22,19 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Kustomize
+        uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: '5.4.3'
+
       - name: Validate Kustomize manifests
         run: |
-          # Install kustomize
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-          sudo mv kustomize /usr/local/bin/
-          
           echo "Validating Kustomize manifests..."
           echo "Checking base configuration..."
           kustomize build manifests/base > /dev/null
@@ -66,6 +68,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
+            type=sha,prefix=sha-,format=short
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
@@ -79,10 +82,23 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build test image
+        if: github.event_name == 'pull_request'
+        run: docker build -t test-container .
+
+      - name: Run Trivy vulnerability scanner
+        if: github.event_name == 'pull_request'
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'test-container'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
       - name: Test container (comprehensive validation)
         if: github.event_name == 'pull_request'
         run: |
-          docker build -t test-container .
           echo "Running comprehensive container validation..."
           docker run --rm test-container /bin/bash -c "
             echo 'Testing database clients...' &&
@@ -99,7 +115,6 @@ jobs:
             echo 'Testing development tools...' &&
             python3 --version &&
             git --version &&
-            nodejs --version &&
             jq --version &&
             echo 'Development tools: OK' &&
             echo 'Testing system tools...' &&
