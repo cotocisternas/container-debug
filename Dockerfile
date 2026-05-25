@@ -57,13 +57,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install kubectl and grpcurl (multi-arch binary downloads)
-RUN ARCH=$(dpkg --print-architecture) && \
-    curl -fsSL "https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl" \
+# Install kubectl and grpcurl (pinned versions, multi-arch)
+ARG KUBECTL_VERSION=v1.36.1
+ARG GRPCURL_VERSION=1.9.3
+RUN DPKG_ARCH=$(dpkg --print-architecture) && \
+    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${DPKG_ARCH}/kubectl" \
       -o /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl && \
-    GRPCURL_VERSION=$(curl -fsSL https://api.github.com/repos/fullstorydev/grpcurl/releases/latest | jq -r .tag_name | sed 's/^v//') && \
-    curl -fsSL "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_${ARCH}.tar.gz" \
+    UNAME_ARCH=$(uname -m) && \
+    curl -fsSL "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_${UNAME_ARCH}.tar.gz" \
       | tar -xz -C /usr/local/bin grpcurl && \
     chmod +x /usr/local/bin/grpcurl
 
