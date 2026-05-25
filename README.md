@@ -29,7 +29,7 @@ This container includes tools for debugging connectivity issues with:
 - `psql` - PostgreSQL client
 - `mysql` - MySQL/MariaDB client
 - `redis-cli` - Redis client
-- MongoDB client can be installed manually if needed
+- `mongosh` - MongoDB shell
 
 ### Messaging Tools
 
@@ -38,7 +38,7 @@ This container includes tools for debugging connectivity issues with:
 
 ### Kubernetes Tools
 
-- `kubectl` can be installed manually if needed
+- `kubectl` - Kubernetes CLI
 
 ### System Utilities
 
@@ -47,6 +47,8 @@ This container includes tools for debugging connectivity issues with:
 - `htop` - Process monitoring
 - `vim`, `nano` - Text editors
 - `openssl` - SSL/TLS utilities
+- `python3` - Scripting and ad-hoc testing
+- `git` - Version control
 
 ### Custom Scripts
 
@@ -143,11 +145,8 @@ mysql -h db-host -P 3306 -u myuser -p mydb
 
 ```bash
 test-db-connection mongo db-host 27017
-# Note: MongoDB client not included by default, will test basic connectivity
-# To install MongoDB client manually:
-# curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc |  gpg --dearmor -o /usr/share/keyrings/mongodb.gpg
-# echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list
-# apt-get update && apt-get install -y mongodb-mongosh
+# or manually:
+mongosh --host db-host:27017
 ```
 
 #### Redis
@@ -194,10 +193,6 @@ test-rabbitmq rabbitmq-host 5672 guest guest
 ### Kubernetes Debugging
 
 ```bash
-# Install kubectl first (if needed)
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-chmod +x kubectl && mv kubectl /usr/local/bin/
-
 # Check cluster info
 kubectl cluster-info
 

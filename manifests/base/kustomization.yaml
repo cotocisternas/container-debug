@@ -8,6 +8,8 @@ metadata:
 
 resources:
 - deployment.yaml
+- serviceaccount.yaml
+- networkpolicy.yaml
 
 configMapGenerator:
 - name: debug-scripts

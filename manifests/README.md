@@ -8,23 +8,24 @@ This directory contains Kustomize manifests for deploying the Container Debug to
 manifests/
 ├── base/                           # Base Kustomize configuration
 │   ├── deployment.yaml             # Base deployment manifest
-│   ├── service.yaml               # Service definition
-│   ├── configmap.yaml             # Configuration and documentation
-│   └── kustomization.yaml         # Base kustomization
-├── overlays/                      # Environment-specific overlays
-│   ├── development/               # Development environment
+│   ├── serviceaccount.yaml         # Dedicated ServiceAccount
+│   ├── networkpolicy.yaml          # Network access policy
+│   ├── debug-instructions.md       # Instructions mounted as ConfigMap
+│   └── kustomization.yaml          # Base kustomization
+├── overlays/                       # Environment-specific overlays
+│   ├── development/                # Development environment
 │   │   ├── kustomization.yaml
 │   │   └── deployment-patch.yaml
-│   ├── staging/                   # Staging environment
+│   ├── staging/                    # Staging environment
 │   │   ├── kustomization.yaml
 │   │   └── deployment-patch.yaml
-│   └── production/                # Production environment
+│   └── production/                 # Production environment
 │       ├── kustomization.yaml
 │       └── deployment-patch.yaml
-└── gitops-examples/               # GitOps tool examples
-    ├── fluxcd/                    # FluxCD configuration
+└── gitops-examples/                # GitOps tool examples
+    ├── fluxcd/                     # FluxCD configuration
     │   └── container-debug-flux.yaml
-    └── argocd/                    # ArgoCD configuration
+    └── argocd/                     # ArgoCD configuration
         └── container-debug-apps.yaml
 ```
 
@@ -61,7 +62,7 @@ kubectl exec -it -n production deployment/prod-container-debug -- /bin/bash
 | Feature | Development | Staging | Production |
 |---------|-------------|---------|------------|
 | Replicas | 1 | 1 | 2 |
-| Resources | Higher limits for testing | Moderate | Conservative |
+| Resources | Base (64Mi/256Mi) | Moderate (96Mi/384Mi) | Higher (128Mi/512Mi) |
 | Log Level | debug | info | warn |
 | Namespace | development | staging | production |
 | Prefix | dev- | staging- | prod- |
@@ -158,8 +159,10 @@ spec:
 The deployment includes several security best practices:
 
 - **Non-root user**: Runs as user ID 1000 (debugger)
-- **Read-only root filesystem**: Prevents tampering
-- **Dropped capabilities**: Only NET_RAW and NET_ADMIN for network debugging
+- **Read-only root filesystem**: Prevents tampering (tmpfs mounts for /tmp and /home)
+- **Dedicated ServiceAccount**: With `automountServiceAccountToken: false` (no K8s API access)
+- **NetworkPolicy**: Explicit egress-only policy, deny all ingress
+- **Dropped capabilities**: All dropped, only NET_RAW added (required for ping)
 - **Security context**: Includes seccomp profile and prevents privilege escalation
 - **Pod anti-affinity**: Production spread across nodes
 

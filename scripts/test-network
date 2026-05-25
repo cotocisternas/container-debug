@@ -1,17 +1,29 @@
 #!/bin/bash
-# Network connectivity testing script
+set -euo pipefail
 
 usage() {
-    echo "Usage: test-network <host> [port]"
+    echo "Usage: test-network [--quick] <host> [port]"
+    echo ""
+    echo "Options:"
+    echo "  --quick  Skip traceroute (faster execution)"
+    echo ""
     echo "Examples:"
     echo "  test-network google.com"
-    echo "  test-network localhost 8080"
+    echo "  test-network --quick localhost 8080"
 }
 
-if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
     usage
     exit 0
 fi
+
+QUICK=false
+while [[ "${1:-}" == --* ]]; do
+    case "$1" in
+        --quick) QUICK=true; shift ;;
+        *) echo "Unknown option: $1"; usage; exit 1 ;;
+    esac
+done
 
 if [ $# -lt 1 ]; then
     usage
@@ -19,27 +31,29 @@ if [ $# -lt 1 ]; then
 fi
 
 HOST=$1
-PORT=$2
+PORT=${2:-}
 
 echo "Testing network connectivity to $HOST${PORT:+:$PORT}..."
 
 # DNS resolution test
 echo "=== DNS Resolution ==="
-nslookup "$HOST"
+nslookup "$HOST" || echo "DNS resolution failed for $HOST"
 
 # Ping test
 echo -e "\n=== Ping Test ==="
-ping -c 4 "$HOST"
+ping -c 4 "$HOST" || echo "Ping failed for $HOST"
 
 # Port connectivity test (if port specified)
 if [ -n "$PORT" ]; then
     echo -e "\n=== Port Connectivity Test ==="
-    nc -zv "$HOST" "$PORT"
-    
+    nc -zv "$HOST" "$PORT" || echo "Port $PORT is not reachable on $HOST"
+
     echo -e "\n=== Telnet Test ==="
-    timeout 5 telnet "$HOST" "$PORT" < /dev/null
+    timeout 5 telnet "$HOST" "$PORT" < /dev/null || echo "Telnet connection failed"
 fi
 
-# Traceroute
-echo -e "\n=== Traceroute ==="
-traceroute "$HOST"
+# Traceroute (skip with --quick)
+if [ "$QUICK" = false ]; then
+    echo -e "\n=== Traceroute ==="
+    traceroute "$HOST" || echo "Traceroute failed"
+fi

@@ -26,7 +26,8 @@ commonAnnotations:
 
 images:
 - name: ghcr.io/cotocisternas/container-debug
-  newTag: latest
+  # Pin to commit SHA; do not use 'latest' in production
+  newTag: sha-bb68d82
 
 replicas:
 - name: container-debug

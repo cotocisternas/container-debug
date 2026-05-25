@@ -21,7 +21,7 @@ test: ## Run comprehensive container smoke tests for all tools
 	@echo "Testing network tools..."
 	@$(DOCKER) run --rm container-debug /bin/bash -c "ping -c 1 127.0.0.1 > /dev/null && echo 'ping: OK' && nc -h 2>&1 | head -1 && dig -v 2>&1 | head -1"
 	@echo "Testing development tools..."
-	@$(DOCKER) run --rm container-debug /bin/bash -c "python3 --version && git --version && nodejs --version && jq --version"
+	@$(DOCKER) run --rm container-debug /bin/bash -c "python3 --version && git --version && jq --version && kubectl version --client && grpcurl --version"
 	@echo "Testing system tools..."
 	@$(DOCKER) run --rm container-debug /bin/bash -c "htop --version 2>&1 | head -1 && curl --version | head -1 && wget --version | head -1"
 	@echo "Testing custom scripts..."

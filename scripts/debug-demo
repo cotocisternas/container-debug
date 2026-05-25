@@ -1,14 +1,14 @@
 #!/bin/bash
-# Demo script showing available debugging tools
+set -euo pipefail
 
 echo "=== Container Debug Tools Demo ==="
 echo
 
 echo "Available debugging tools:"
 echo "- Network: ping, nc, telnet, nslookup, dig, traceroute, nmap"
-echo "- Database clients: psql, mysql, redis-cli"
+echo "- Database clients: psql, mysql, redis-cli, mongosh"
 echo "- HTTP tools: curl, wget"
-echo "- System: htop, vim, jq, python3, git, nodejs"
+echo "- System: htop, vim, jq, python3, git"
 echo "- Custom scripts: test-network, test-db-connection, test-rabbitmq"
 echo
 
