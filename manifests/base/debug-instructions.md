@@ -40,9 +40,10 @@ test-rabbitmq rabbitmq-host 5672 guest guest
 ## Available Tools
 
 - Network: ping, nc, telnet, nslookup, dig, traceroute, nmap, tcpdump
-- Database clients: psql, mysql, redis-cli
+- Database clients: psql, mysql, redis-cli, mongosh
 - HTTP tools: curl, wget
-- System: htop, vim, jq, python3, git, nodejs
+- Kubernetes: kubectl
+- System: htop, vim, jq, python3, git
 - Custom scripts: test-network, test-db-connection, test-rabbitmq, debug-demo
 
 ## Advanced Usage
