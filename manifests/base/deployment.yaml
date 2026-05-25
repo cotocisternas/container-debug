@@ -50,6 +50,7 @@ spec:
             cpu: "200m"
         securityContext:
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
           runAsNonRoot: true
           runAsUser: 1000
           capabilities:
@@ -64,10 +65,22 @@ spec:
         - name: debug-instructions
           mountPath: /debug-docs
           readOnly: true
+        - name: tmp
+          mountPath: /tmp
+        - name: home
+          mountPath: /home/debugger
       volumes:
       - name: debug-instructions
         configMap:
           name: debug-scripts
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi
+      - name: home
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi
       serviceAccountName: container-debug
       restartPolicy: Always
       securityContext:

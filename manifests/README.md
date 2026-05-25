@@ -159,6 +159,7 @@ spec:
 The deployment includes several security best practices:
 
 - **Non-root user**: Runs as user ID 1000 (debugger)
+- **Read-only root filesystem**: Prevents tampering (tmpfs mounts for /tmp and /home)
 - **Dedicated ServiceAccount**: With `automountServiceAccountToken: false` (no K8s API access)
 - **NetworkPolicy**: Explicit egress-only policy, deny all ingress
 - **Dropped capabilities**: All dropped, only NET_RAW added (required for ping)
