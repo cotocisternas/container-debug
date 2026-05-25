@@ -52,10 +52,8 @@ case $TYPE in
             echo "Username required for PostgreSQL"
             exit 1
         fi
-        SSL_OPT=""
-        [ "$SSL" = true ] && SSL_OPT="sslmode=require"
-        if [ -n "$SSL_OPT" ]; then
-            psql "host=$HOST port=$PORT user=$USERNAME dbname=${DATABASE:-postgres} $SSL_OPT" -c "SELECT 1;"
+        if [ "$SSL" = true ]; then
+            psql "host=$HOST port=$PORT user=$USERNAME dbname=${DATABASE:-postgres} sslmode=require" -c "SELECT 1;"
         else
             psql -h "$HOST" -p "$PORT" -U "$USERNAME" -d "${DATABASE:-postgres}" -c "SELECT 1;"
         fi
@@ -65,32 +63,31 @@ case $TYPE in
             echo "Username required for MySQL"
             exit 1
         fi
-        SSL_OPT=""
-        [ "$SSL" = true ] && SSL_OPT="--ssl-mode=REQUIRED"
-        if [ -n "${MYSQL_PWD:-}" ]; then
-            mysql -h "$HOST" -P "$PORT" -u "$USERNAME" $SSL_OPT -e "SELECT 1;" "${DATABASE:-mysql}"
-        else
+        local_args=(-h "$HOST" -P "$PORT" -u "$USERNAME")
+        [ "$SSL" = true ] && local_args+=("--ssl-mode=REQUIRED")
+        if [ -z "${MYSQL_PWD:-}" ]; then
             echo "Note: Set MYSQL_PWD env var to avoid password prompt"
-            mysql -h "$HOST" -P "$PORT" -u "$USERNAME" -p $SSL_OPT -e "SELECT 1;" "${DATABASE:-mysql}"
+            local_args+=(-p)
         fi
+        mysql "${local_args[@]}" -e "SELECT 1;" "${DATABASE:-mysql}"
         ;;
     mongo)
-        SSL_OPT=""
-        [ "$SSL" = true ] && SSL_OPT="--tls"
+        local_args=(--host "$HOST:$PORT")
+        [ "$SSL" = true ] && local_args+=(--tls)
         if command -v mongosh >/dev/null 2>&1; then
-            mongosh --host "$HOST:$PORT" $SSL_OPT --eval "db.runCommand('ping')"
+            mongosh "${local_args[@]}" --eval "db.runCommand('ping')"
         elif command -v mongo >/dev/null 2>&1; then
-            mongo --host "$HOST:$PORT" $SSL_OPT --eval "db.runCommand('ping')"
+            mongo "${local_args[@]}" --eval "db.runCommand('ping')"
         else
             echo "MongoDB client not available. Testing basic connectivity..."
             nc -zv "$HOST" "$PORT"
         fi
         ;;
     redis)
-        REDIS_OPTS="-h $HOST -p $PORT"
-        [ "$SSL" = true ] && REDIS_OPTS="$REDIS_OPTS --tls"
-        [ -n "${REDIS_AUTH:-}" ] && REDIS_OPTS="$REDIS_OPTS -a $REDIS_AUTH"
-        redis-cli $REDIS_OPTS ping
+        local_args=(-h "$HOST" -p "$PORT")
+        [ "$SSL" = true ] && local_args+=(--tls)
+        [ -n "${REDIS_AUTH:-}" ] && local_args+=(-a "$REDIS_AUTH")
+        redis-cli "${local_args[@]}" ping
         ;;
     *)
         echo "Unsupported database type: $TYPE"

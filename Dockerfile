@@ -8,6 +8,8 @@ LABEL org.opencontainers.image.title="container-debug"
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 # Add MongoDB repository
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
