@@ -119,7 +119,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: docker build -t test-container .
 
-      - name: Run Trivy vulnerability scanner
+      - name: Run Trivy vulnerability scanner (OS packages)
         if: github.event_name == 'pull_request'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -128,6 +128,20 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
+          scanners: 'vuln'
+          vuln-type: 'os'
+
+      - name: Run Trivy vulnerability scanner (application binaries)
+        if: github.event_name == 'pull_request'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: 'test-container'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+          scanners: 'vuln'
+          vuln-type: 'library'
 
       - name: Test container tools
         if: github.event_name == 'pull_request'
