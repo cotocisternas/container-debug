@@ -116,6 +116,8 @@ jobs:
             python3 --version &&
             git --version &&
             jq --version &&
+            kubectl version --client &&
+            grpcurl --version &&
             echo 'Development tools: OK' &&
             echo 'Testing system tools...' &&
             htop --version 2>&1 | head -1 &&

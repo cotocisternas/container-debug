@@ -50,6 +50,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
+# Install kubectl and grpcurl (multi-arch binary downloads)
+RUN ARCH=$(dpkg --print-architecture) && \
+    curl -fsSL "https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl" \
+      -o /usr/local/bin/kubectl && \
+    chmod +x /usr/local/bin/kubectl && \
+    GRPCURL_VERSION=$(curl -fsSL https://api.github.com/repos/fullstorydev/grpcurl/releases/latest | jq -r .tag_name | sed 's/^v//') && \
+    curl -fsSL "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_${ARCH}.tar.gz" \
+      | tar -xz -C /usr/local/bin grpcurl && \
+    chmod +x /usr/local/bin/grpcurl
+
 # Create a non-root user for security
 RUN useradd -m -s /bin/bash debugger
 
