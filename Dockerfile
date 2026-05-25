@@ -1,5 +1,10 @@
 FROM ubuntu:22.04
 
+LABEL org.opencontainers.image.source="https://github.com/cotocisternas/container-debug"
+LABEL org.opencontainers.image.description="Comprehensive debugging container for Kubernetes environments"
+LABEL org.opencontainers.image.licenses="MIT"
+LABEL org.opencontainers.image.title="container-debug"
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
