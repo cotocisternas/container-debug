@@ -1,5 +1,5 @@
 #!/bin/bash
-# Database connection testing script
+set -euo pipefail
 
 usage() {
     echo "Usage: test-db-connection <type> <host> <port> [database] [username]"
@@ -10,7 +10,7 @@ usage() {
     echo "  test-db-connection mongo localhost 27017"
 }
 
-if [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
     usage
     exit 0
 fi
@@ -23,8 +23,8 @@ fi
 TYPE=$1
 HOST=$2
 PORT=$3
-DATABASE=$4
-USERNAME=$5
+DATABASE=${4:-}
+USERNAME=${5:-}
 
 echo "Testing connection to $TYPE at $HOST:$PORT..."
 
@@ -41,7 +41,7 @@ case $TYPE in
             echo "Username required for MySQL"
             exit 1
         fi
-        mysql -h "$HOST" -P "$PORT" -u "$USERNAME" -p -e "SELECT 1;" "${DATABASE:-mysql}"
+        mysql -h "$HOST" -P "$PORT" -u "$USERNAME" -e "SELECT 1;" "${DATABASE:-mysql}"
         ;;
     mongo)
         if command -v mongosh >/dev/null 2>&1; then
