@@ -64,8 +64,12 @@ RUN DPKG_ARCH=$(dpkg --print-architecture) && \
     curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${DPKG_ARCH}/kubectl" \
       -o /usr/local/bin/kubectl && \
     chmod +x /usr/local/bin/kubectl && \
-    UNAME_ARCH=$(uname -m) && \
-    curl -fsSL "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_${UNAME_ARCH}.tar.gz" \
+    case "${DPKG_ARCH}" in \
+      amd64) GRPCURL_ARCH="x86_64" ;; \
+      arm64) GRPCURL_ARCH="arm64" ;; \
+      *) echo "Unsupported arch: ${DPKG_ARCH}" && exit 1 ;; \
+    esac && \
+    curl -fsSL "https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_${GRPCURL_ARCH}.tar.gz" \
       | tar -xz -C /usr/local/bin grpcurl && \
     chmod +x /usr/local/bin/grpcurl
 
